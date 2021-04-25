@@ -1,10 +1,16 @@
 import { useQuery } from 'react-query';
-import fetcher from './fetcher';
+
+const fetcher = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(response.statusText);
+  return response.json();
+};
 
 const formatShow = (record = {}) => {
   const { show: { id, url, name, premiered, image, summary, network } } = record;
-  const { name: networkName } = network;
-  return { id, url, name, premiered, image, summary, network: { name: networkName } };
+  const networkName = network?.name;
+  const show = { id, url, name, premiered, image, summary, network: { name: networkName } };
+  return show;
 };
 
 const formatSeason = (record = {}) => {
@@ -34,9 +40,17 @@ const getShowSeasons = async (id) => {
   return formatSeasons(data);
 };
 
-export const useShowSearch = query => useQuery(['showSearch', query], () => searchTvShows(query));
+const getShowsByDate = async (date) => {
+  const url = `${process.env.REACT_APP_BASE_URL}/schedule/web?date=${date}`;
+  const data = await fetcher(url);
+  return formatShows(data);
+};
 
-export const useShow = id => useQuery(['show', id], () => getShow(id));
+export const useShowSearch = query => useQuery(['showSearch', query], () => searchTvShows(query), { enabled: false, refetchOnWindowFocus: false });
 
-export const useShowSeasons = id => useQuery(['showSeasons', id], () => getShowSeasons(id));
+export const useShow = id => useQuery(['show', id], () => getShow(id), { enabled: false, refetchOnWindowFocus: false });
+
+export const useShowSeasons = id => useQuery(['showSeasons', id], () => getShowSeasons(id), { enabled: false, refetchOnWindowFocus: false });
+
+export const useShowsByDate = date => useQuery(['showsByDate', date], () => getShowsByDate(date), { enabled: false, refetchOnWindowFocus: false });
 
