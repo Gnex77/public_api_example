@@ -1,15 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './styles/index.css';
-import App from './App';
+import TVShow from './TVShow';
 import reportWebVitals from './reportWebVitals';
 
 // Global CSS
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css'
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <TVShow />
   </React.StrictMode>,
   document.getElementById('root')
 );
