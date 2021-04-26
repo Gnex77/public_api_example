@@ -1,9 +1,20 @@
 import { useQuery } from 'react-query';
 
 const fetcher = async (url) => {
-  const response = await fetch(url);
+  const requestOptions = {
+    method: 'GET',
+    redirect: 'follow'
+  };
+  const response = await fetch(url, requestOptions);
   if (!response.ok) throw new Error(response.statusText);
   return response.json();
+};
+
+const formatDateSearchShow = (record = {}) => {
+  const { id, url, name, premiered, image, summary, network } = record;
+  const networkName = network?.name;
+  const show = { id, url, name, premiered, image, summary, network: { name: networkName } };
+  return show;
 };
 
 const formatShow = (record = {}) => {
@@ -21,6 +32,8 @@ const formatSeason = (record = {}) => {
 const formatSeasons = (data = []) => data.map(record => formatSeason(record));
 
 const formatShows = (data = []) => data.map(record => formatShow(record));
+
+const formatDateSearchShows = (data = []) => data.map(record => formatDateSearchShow(record));
 
 const searchTvShows = async (query) => {
   const url = `${process.env.REACT_APP_BASE_URL}/search/shows?q=${query}`;
@@ -41,9 +54,10 @@ const getShowSeasons = async (id) => {
 };
 
 const getShowsByDate = async (date) => {
-  const url = `${process.env.REACT_APP_BASE_URL}/schedule/web?date=${date}`;
+  const url = `${process.env.REACT_APP_BASE_URL}/schedule/web?date=${date}&country=US`;
   const data = await fetcher(url);
-  return formatShows(data);
+  const shows = formatDateSearchShows(data);
+  return shows;
 };
 
 export const useShowSearch = query => useQuery(['showSearch', query], () => searchTvShows(query), { enabled: false, refetchOnWindowFocus: false });
